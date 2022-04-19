@@ -3,6 +3,7 @@ import './styles/App.css';
 import PostList from "./components/PostList";
 import AddedButton from "./components/UI/button/AddedButton";
 import CustomInput from "./components/UI/input/CustomInput";
+import {useRef} from "react";
 
 function App() {
   const [posts, setPosts] = useState([
@@ -13,19 +14,42 @@ function App() {
     {id: 5, title: 'Flutter', body: 'Description'},
   ])
 
-  const [title, setTitle] = useState([''])
+  const [post, setPost] = useState({
+    title: '',
+    body: ''
+  })
 
-  const [body, setBody] = useState([''])
+  const addNewPost = (event) => {
+    event.preventDefault()
 
-  const addNewPost = () => {
+    const newPost = {
+      id: Date.now(),
+    }
 
+    setPosts([...posts, {...post, id: Date.now()}])
+
+    setPost({
+      title: '',
+      body: ''
+    })
+    console.log(newPost)
   }
 
   return (
     <div className="App">
       <form>
-        <CustomInput type="text" placeholder="Название поста"/>
-        <CustomInput type="text" placeholder="Описание поста"/>
+        <CustomInput
+          value={post.title}
+          onChange={event => setPost({...post, title: event.target.value})}
+          type="text"
+          placeholder="Название поста"
+        />
+        <CustomInput
+          value={post.body}
+          onChange={event => setPost({...post, body: event.target.value})}
+          type="text"
+          placeholder="Описание поста"
+        />
         <AddedButton onClick={addNewPost}>Создать пост</AddedButton>
       </form>
       <PostList posts={posts} title="Список постов"/>
