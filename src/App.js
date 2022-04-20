@@ -1,9 +1,7 @@
 import React, {useState} from "react";
 import './styles/App.css';
+import PostForm from "./components/PostForm";
 import PostList from "./components/PostList";
-import AddedButton from "./components/UI/button/AddedButton";
-import CustomInput from "./components/UI/input/CustomInput";
-import {useRef} from "react";
 
 function App() {
   const [posts, setPosts] = useState([
@@ -14,45 +12,22 @@ function App() {
     {id: 5, title: 'Flutter', body: 'Description'},
   ])
 
-  const [post, setPost] = useState({
-    title: '',
-    body: ''
-  })
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost])
+  }
 
-  const addNewPost = (event) => {
-    event.preventDefault()
-
-    const newPost = {
-      id: Date.now(),
-    }
-
-    setPosts([...posts, {...post, id: Date.now()}])
-
-    setPost({
-      title: '',
-      body: ''
-    })
-    console.log(newPost)
+  const removePost = (currentPost) => {
+    setPosts(posts.filter(item => item.id !== currentPost.id))
   }
 
   return (
     <div className="App">
-      <form>
-        <CustomInput
-          value={post.title}
-          onChange={event => setPost({...post, title: event.target.value})}
-          type="text"
-          placeholder="Название поста"
-        />
-        <CustomInput
-          value={post.body}
-          onChange={event => setPost({...post, body: event.target.value})}
-          type="text"
-          placeholder="Описание поста"
-        />
-        <AddedButton onClick={addNewPost}>Создать пост</AddedButton>
-      </form>
-      <PostList posts={posts} title="Список постов"/>
+      <PostForm create={createPost}/>
+      {
+        posts.length === 0 ?
+          <h1>Нет постов мой друг, к сожалению</h1> :
+          <PostList remove={removePost} posts={posts} title="Список постов"/>
+      }
     </div>
   );
 }

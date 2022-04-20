@@ -2,7 +2,7 @@ import React from 'react';
 
 import classes from './AddedButton.module.css';
 
-const AddedButton = ({children, ...props}) => {
+const CustomButton = ({children, ...props}) => {
   return (
     <button {...props} className={classes.AddedButton}>
       {children}
@@ -10,4 +10,4 @@ const AddedButton = ({children, ...props}) => {
   );
 };
 
-export default AddedButton;
+export default CustomButton;
