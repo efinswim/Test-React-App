@@ -2,9 +2,9 @@ import React, {useMemo, useState} from "react";
 import './styles/App.css';
 import PostForm from "./components/PostForm";
 import PostList from "./components/PostList";
-import CustomSelect from "./components/UI/select/CustomSelect";
-import CustomInput from "./components/UI/input/CustomInput";
 import PostFilter from "./components/PostFilter";
+import CustomModal from "./components/UI/modal/CustomModal";
+import CustomButton from "./components/UI/button/CustomButton";
 
 function App() {
   const [posts, setPosts] = useState([
@@ -16,10 +16,10 @@ function App() {
   ])
 
   const [filter, setFilter] = useState({sort: '', query: ''});
+  const [modal, setModal] = useState(false)
 
 
   const sortedPosts = useMemo(() => {
-    console.log('Фуекцмя српиел прсис рипаьриаоа')
     if (filter.sort) {
       [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
     }
@@ -32,6 +32,7 @@ function App() {
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost])
+    setModal(false)
   }
 
   const removePost = (currentPost) => {
@@ -40,7 +41,15 @@ function App() {
 
   return (
     <div className="App">
-      <PostForm create={createPost} />
+      <CustomButton style={{marginTop: 15}} onClick={() => setModal(true)}>
+        Создать пост
+      </CustomButton>
+      <CustomModal
+        visible={modal}
+        setVisible={setModal}
+      >
+        <PostForm create={createPost} />
+      </CustomModal>
       <hr style={{margin: '15px'}} />
       <PostFilter filter={filter} setFilter={setFilter} />
       <PostList remove={removePost} posts={sortedAndSearchPosts} title="Список постов" />
