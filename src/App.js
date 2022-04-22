@@ -1,8 +1,10 @@
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import './styles/App.css';
 import PostForm from "./components/PostForm";
 import PostList from "./components/PostList";
 import CustomSelect from "./components/UI/select/CustomSelect";
+import CustomInput from "./components/UI/input/CustomInput";
+import PostFilter from "./components/PostFilter";
 
 function App() {
   const [posts, setPosts] = useState([
@@ -13,7 +15,20 @@ function App() {
     {id: 5, title: 'Flutter', body: 'Description'},
   ])
 
-  const [selectedSort, setSelectedSort] = useState('');
+  const [filter, setFilter] = useState({sort: '', query: ''});
+
+
+  const sortedPosts = useMemo(() => {
+    console.log('Фуекцмя српиел прсис рипаьриаоа')
+    if (filter.sort) {
+      [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
+    }
+    return posts
+  }, [filter.sort, posts])
+
+  const sortedAndSearchPosts = useMemo(() => {
+    return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query))
+  }, [filter.query, sortedPosts])
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost])
@@ -23,32 +38,12 @@ function App() {
     setPosts(posts.filter(item => item.id !== currentPost.id))
   }
 
-  const sortPosts = (value) => {
-    setSelectedSort(value)
-    console.log(value)
-    setPosts([...posts].sort((a, b) => a[value].localeCompare(b[value])))
-  }
-
   return (
     <div className="App">
-      <PostForm create={createPost}/>
+      <PostForm create={createPost} />
       <hr style={{margin: '15px'}} />
-      <CustomSelect
-        value={selectedSort}
-        onChange={sortPosts}
-        defaultValue='Выберите фильтр'
-        options={[
-          {value: 'title', name: 'По названию'},
-          {value: 'body', name: 'По описанию'},
-        ]}
-      />
-      {
-        posts.length
-          ?
-          <PostList remove={removePost} posts={posts} title="Список постов"/>
-          :
-          <h1 style={{textAlign: 'center'}}>Нет постов мой друг, к сожалению</h1>
-      }
+      <PostFilter filter={filter} setFilter={setFilter} />
+      <PostList remove={removePost} posts={sortedAndSearchPosts} title="Список постов" />
     </div>
   );
 }
