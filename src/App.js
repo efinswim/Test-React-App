@@ -9,32 +9,41 @@ import {usePosts} from "./hooks/usePosts"
 import axios from "axios";
 import PostService from "./API/PostService";
 import Loader from './components/UI/loader/Loader';
+import {useFetching} from "./hooks/useFetching";
+import {getPageCount, getPagesArray} from "./utils/pages";
+import Pagination from "./components/UI/pagination/Pagination";
 
 function App() {
   const [posts, setPosts] = useState([])
   const [filter, setFilter] = useState({sort: '', query: ''});
   const [modal, setModal] = useState(false)
+  const [totalPages, setTotalPages] = useState(0);
+  const [limit, setLimit] = useState(10)
+  const [page, setPage] = useState(1);
   const sortedAndSearchPosts = usePosts(posts, filter.sort, filter.query)
-  const [isPostLoading, setIsPostsLoading] = useState(false);
+
+  const [fetchPosts, isPostLoading, postError] = useFetching(async () => {
+    const response = await PostService.getAll(limit, page)
+    setPosts(response.data)
+    const totalCount = response.headers['x-total-count']
+    setTotalPages(getPageCount(totalCount, limit));
+  })
 
   useEffect(() => {
     fetchPosts()
-  }, [])
+  }, [page])
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost])
     setModal(false)
   }
 
-  async function fetchPosts() {
-    setIsPostsLoading(true);
-    const posts = await PostService.getAll()
-    setPosts(posts)
-    setIsPostsLoading(false);
-  }
-
   const removePost = (currentPost) => {
     setPosts(posts.filter(item => item.id !== currentPost.id))
+  }
+
+  const changePage = (page) => {
+    setPage(page)
   }
 
   return (
@@ -50,6 +59,9 @@ function App() {
       </CustomModal>
       <hr style={{margin: '15px'}} />
       <PostFilter filter={filter} setFilter={setFilter} />
+      {postError &&
+        <h1>Error ${postError}</h1>
+      }
       {isPostLoading
         ? <div style={{
           display: 'flex',
@@ -60,6 +72,7 @@ function App() {
       </div>
         : <PostList remove={removePost} posts={sortedAndSearchPosts} title="Список постов" />
       }
+      <Pagination page={page} changePage={changePage} totalPages={totalPages} />
     </div>
   );
 }
