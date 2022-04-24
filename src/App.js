@@ -8,12 +8,14 @@ import CustomButton from "./components/UI/button/CustomButton";
 import {usePosts} from "./hooks/usePosts"
 import axios from "axios";
 import PostService from "./API/PostService";
+import Loader from './components/UI/loader/Loader';
 
 function App() {
   const [posts, setPosts] = useState([])
   const [filter, setFilter] = useState({sort: '', query: ''});
   const [modal, setModal] = useState(false)
   const sortedAndSearchPosts = usePosts(posts, filter.sort, filter.query)
+  const [isPostLoading, setIsPostsLoading] = useState(false);
 
   useEffect(() => {
     fetchPosts()
@@ -25,8 +27,10 @@ function App() {
   }
 
   async function fetchPosts() {
+    setIsPostsLoading(true);
     const posts = await PostService.getAll()
     setPosts(posts)
+    setIsPostsLoading(false);
   }
 
   const removePost = (currentPost) => {
@@ -46,7 +50,16 @@ function App() {
       </CustomModal>
       <hr style={{margin: '15px'}} />
       <PostFilter filter={filter} setFilter={setFilter} />
-      <PostList remove={removePost} posts={sortedAndSearchPosts} title="Список постов" />
+      {isPostLoading
+        ? <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginTop: '50px'}}
+        >
+          <Loader />
+      </div>
+        : <PostList remove={removePost} posts={sortedAndSearchPosts} title="Список постов" />
+      }
     </div>
   );
 }
